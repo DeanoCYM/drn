@@ -18,7 +18,6 @@ free_str(char *str)
 
     return;
 }
-
 static void
 free_sll(struct SLL *Head)
 {
@@ -79,14 +78,7 @@ sll_push(struct SLL **Next, const char *str)
     }
 
     Head->len = strlen(str);
-    Head->str = strndup(str, Head->len);
-
-    if (!Head->str) {
-	log_err("Memory error");
-	sll_destroy(&Head);
-	return 1;
-    }
-
+    Head->str = str;
     Head->Next = *Next;
     *Next = Head;
     

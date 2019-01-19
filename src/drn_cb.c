@@ -54,20 +54,45 @@ sysfs_read(const char *pathname, char **sys_out)
 char *
 drn_test1(void)
 {
-    //char *str = sysfs_read("/sys/class/power_supply/BAT0/capacity");
+    char *str = create_buf(MAXSTR);
+    if (!str) {
+	str = NULL;
+	goto out;
+    }
+    
+    strcpy(str, "God");
 
-    return "God";
+ out:
+    return str;
 }
 
 char *
 drn_test2(void)
 {
-    return "My";
+    char *str = create_buf(MAXSTR);
+    if (!str) {
+	str = NULL;
+	goto out;
+    }
+    
+    strcpy(str, "Ma");
+
+ out:
+    return str;
 }
 char *
 drn_test3(void)
 {
-    return "Oh";
+    char *str = create_buf(MAXSTR);
+    if (!str) {
+	str = NULL;
+	goto out;
+    }
+    
+    strcpy(str, "Ohhhhh");
+
+ out:
+    return str;
 }
 
     
