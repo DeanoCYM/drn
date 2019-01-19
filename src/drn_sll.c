@@ -57,7 +57,7 @@ sll_destroy(struct SLL **Next)
 }
 
 int
-sll_push(struct SLL **Next, const char *str)
+sll_push(struct SLL **Next, char *str)
 {
     struct SLL *Head;
 

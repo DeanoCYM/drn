@@ -11,7 +11,7 @@ struct SLL { char *str; size_t len; struct SLL *Next; };
  * 
  * Returns: 0 on success, 1 on failure
  */
-int sll_push(struct SLL **List, const char *str);
+int sll_push(struct SLL **List, char *str);
 
 /* Free and destroy all nodes, and their elements, in the linked
  * list
