@@ -8,7 +8,7 @@
 char *
 create_buf(size_t size)
 {
-    char *buf = calloc(sizeof size);
+    char *buf = calloc(1, sizeof size);
     if (!buf) {
 	log_err("Memory Error");
 	buf = NULL;
@@ -21,34 +21,33 @@ create_buf(size_t size)
 int
 sysfs_read(const char *pathname, char **sys_out)
 {
-    char *pathname = create_buf(MAXPATH);
-    if (!pathname) goto err1;
+ /*    char *pathname = create_buf(MAXPATH); */
+ /*    if (!pathname) goto err1; */
     
-    FILE *sysfile = fopen(pathname, "r");
-    if (!sysfile) {
-	log_err("Failed to open sysfile %s", pathname);
-	goto err2;
-    }
+ /*    FILE *sysfile = fopen(pathname, "r"); */
+ /*    if (!sysfile) { */
+ /* 	log_err("Failed to open sysfile %s", pathname); */
+ /* 	goto err2; */
+ /*    } */
 
-    if ( !fgets(*sys_out, MAXSTR, sysfile) ) {
-	log_err("Failed to read sysfile %s", pathname);
-	goto err3;
-    }
+ /*    if ( !fgets(*sys_out, MAXSTR, sysfile) ) { */
+ /* 	log_err("Failed to read sysfile %s", pathname); */
+ /* 	goto err3; */
+ /*    } */
 
-    int rc = fclose(sysfile);
-    if (!rc) log_warn("Failed to close sysfile");
+ /*    int rc = fclose(sysfile); */
+ /*    if (!rc) log_warn("Failed to close sysfile"); */
 
-    free(s
-    
+ /*    //free(S */
 
-    return 0;
+ /*    return 0; */
 
- err3:
-    fclose(sysfile);
- err2:
-    free(str);
- err1:
-    return 1;
+ /* err3: */
+ /*    fclose(sysfile); */
+ /* err2: */
+ /*    free(str); */
+ /* err1: */
+ /*    return 1; */
 }
 
 /* Returns capacity from SYS_BAT0/capacity */
