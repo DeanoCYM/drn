@@ -4,3 +4,4 @@ bin/drn
 lib/drn_sll.o lib/libdrn_cb.so
 tests/drn_sll_test
 Makefile~
+lib/*
