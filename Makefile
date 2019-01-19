@@ -31,7 +31,7 @@ tests/drn_sll_test: lib/drn_sll.o tests/drn_sll_test.c
 
 clean:
 	rm -f lib/* bin/*
-	rm -f vgcore* tests/drn_ssl_test
+	rm -f vgcore* tests/drn_ssl_test tests/log
 
 tags:
 	ctags -e src/*.c include/*.h test/*.c
