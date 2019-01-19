@@ -6,3 +6,5 @@ tests/drn_sll_test
 Makefile~
 lib/*
 tests/log
+*#*
+Makefile~
