@@ -61,6 +61,11 @@ set_rootname(Display *xdisplay, const char *str, size_t len)
 getstr
 read_cb(void *libdrn_cb, const char *libfn)
 {
+    if (strcmp(libfn, "") == 0) {
+	log_warn("Empty string passed as command line arguement");
+	return NULL;
+    }
+
     getstr cb = dlsym(libdrn_cb, libfn);
     if (!cb) {
 	log_warn("Failed to read %s() from %s", libfn, CB_SO);
@@ -135,6 +140,8 @@ int main(int argc, char *argv[])
 
 	cb = read_cb(libdrn_cb, argv[i + 2]);
 	if (!cb) {
+	    /* one invalid string should not break the program */
+	    sll_push(&Strings, strdup(""));
 	    EC = EXIT_FAILURE;
 	    continue;
 	}

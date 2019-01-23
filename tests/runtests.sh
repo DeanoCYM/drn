@@ -61,15 +61,15 @@ mem_check "bin/drn" "|"		# one arg
 rc_check $? 1
 (( RC+= $? ))
 
-mem_check "bin/drn" "|" "drn_test1" # 3 args
-rc_check $? 0
+mem_check "bin/drn" "|" ""     # empty string arg
+rc_check $? 1
 (( RC+= $? ))
 
-mem_check "bin/drn" "|" "drn_test1" "drn_test2" "drn_test3" # 5 args
-rc_check $? 0
+mem_check "bin/drn" "|" "notafn" # invalid symbol
+rc_check $? 1
 (( RC+= $? ))
 
-mem_check "bin/drn" " " "drn_test1" "drn_test2" "drn_test3" # 5 args
+mem_check "bin/drn" " · " "local_time" "batt_capacity" "batt_status" # 5 args
 rc_check $? 0
 (( RC+= $? ))
 
