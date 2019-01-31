@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <X11/Xlib.h>
+#include <signal.h>
 
 #include "ert_log.h"
 #include "drn_sll.h"
@@ -136,6 +137,13 @@ int
 read_cb_success(struct SLL **Strings, char *str)
 {
     return sll_push(Strings, str);
+}
+
+void
+signal_handler()
+{
+    // add while (1) to main and signal handler man 3 signal --->
+    return;
 }
 
 int main(int argc, char *argv[])
