@@ -150,7 +150,12 @@ int main(int argc, char *argv[])
 	goto out1;
     }
 
-    libdrn_cb = dlopen(CB_SO, RTLD_LAZY);
+    if (!(libdrn_cb = dlopen(CB_SO, RTLD_LAZY))) {
+	log_err("Shared object %s could not be opened", CB_SO);
+	EC = EXIT_FAILURE;
+	goto out1;
+    }
+    
     del = argv[1];
 
     for (int i = 0; i < argc - 2; ++i) {
