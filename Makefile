@@ -50,5 +50,5 @@ clean:
 	rm -f vgcore* tests/drn_ssl_test tests/log
 
 tags:
-	ctags -e src/*.c include/*.h test/*.c
+	ctags -e src/*.c include/*.h
 
