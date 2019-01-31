@@ -69,6 +69,10 @@ mem_check "bin/drn" "|" "notafn" # invalid symbol
 rc_check $? 1
 (( RC+= $? ))
 
+mem_check "bin/drn" "|" "notafn" "batt_capacity" # invalid symbol
+rc_check $? 1
+(( RC+= $? ))
+
 mem_check "bin/drn" " · " "local_time" "batt_capacity" "batt_status" # 5 args
 rc_check $? 0
 (( RC+= $? ))
