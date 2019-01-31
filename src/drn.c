@@ -120,7 +120,10 @@ strings_combine(struct SLL *Strings, char *delimiter)
 }
 
 
-/* When reading the callback fails, an empty string is pushed to the list. This allows the remaining callbacks to be processed aswell as preventing failures during cleanup using (ssl_destroy()). Returns 1. */
+/* When reading the callback fails, an empty string is pushed to the
+   list. This allows the remaining callbacks to be processed aswell as
+   preventing failures during cleanup using (ssl_destroy()). Returns
+   1. */
 int
 read_cb_failure(struct SLL **Strings)
 {
@@ -128,13 +131,12 @@ read_cb_failure(struct SLL **Strings)
     return EXIT_FAILURE;
 }
 
-/* Push string into linked list */
+/* Push string into linked list returns 0 on success or 1 on failure */
 int
 read_cb_success(struct SLL **Strings, char *str)
 {
     return sll_push(Strings, str);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -159,14 +161,13 @@ int main(int argc, char *argv[])
     del = argv[1];
 
     for (int i = 0; i < argc - 2; ++i) {
-
 	cb = read_cb(libdrn_cb, argv[i + 2]);
 
 	if (!cb) {
 	    EC = read_cb_failure(&Strings);
 	} else {
-	    EC = read_cb_success(&Strings, cb());
-	    if (EC) goto out2;
+	    if (read_cb_success(&Strings, cb()))
+		EC = EXIT_FAILURE;
 	}
     }
 
