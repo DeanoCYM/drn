@@ -120,9 +120,29 @@ strings_combine(struct SLL *Strings, char *delimiter)
 }
 
 
+/* When reading the callback fails, an empty string is pushed to the list. This allows the remaining callbacks to be processed aswell as preventing failures during cleanup using (ssl_destroy()). Returns 1. */
+int
+read_cb_failure(struct SLL **Strings)
+{
+    sll_push(Strings, strdup(""));
+    return EXIT_FAILURE;
+}
+
+/* Push string into linked list */
+int
+read_cb_success(struct SLL **Strings, char *str)
+{
+    return sll_push(Strings, str);
+}
+
+
 int main(int argc, char *argv[])
 {
-    int rc, i, EC = EXIT_SUCCESS;
+    int EC = EXIT_SUCCESS;	/* exit code */
+    void *libdrn_cb;		/* shared object used to get callbacks */
+    getstr cb;			/* callback from shared object */
+    struct SLL *Strings = NULL;	/* linked list of processed strings */
+    char *del, *mes;		/* delimiter and message for printing */
 
     if (argc < 3) {
 	log_err("USAGE: %s <delimiter> <callbacks...>", argv[0]);
@@ -130,26 +150,18 @@ int main(int argc, char *argv[])
 	goto out1;
     }
 
-    void *libdrn_cb = dlopen(CB_SO, RTLD_LAZY);
-    char *delimiter = argv[1];
-    char *str;
-    getstr cb;
-    struct SLL *Strings = NULL;
+    libdrn_cb = dlopen(CB_SO, RTLD_LAZY);
+    del = argv[1];
 
-    for (i = 0; i < argc - 2; ++i) {
+    for (int i = 0; i < argc - 2; ++i) {
 
 	cb = read_cb(libdrn_cb, argv[i + 2]);
-	if (!cb) {
-	    /* one invalid string should not break the program */
-	    sll_push(&Strings, strdup(""));
-	    EC = EXIT_FAILURE;
-	    continue;
-	}
 
-	rc = sll_push(&Strings, cb());
-	if (rc) {
-	    EC = EXIT_FAILURE;
-	    goto out2;
+	if (!cb) {
+	    EC = read_cb_failure(&Strings);
+	} else {
+	    EC = read_cb_success(&Strings, cb());
+	    if (EC) goto out2;
 	}
     }
 
@@ -159,22 +171,20 @@ int main(int argc, char *argv[])
 	    goto out2;
     }
     
-    // combine each string with delimiter
-    str = strings_combine(Strings, delimiter);
-    if (!str) {
+    /* combine each string with the delimiter */
+    mes = strings_combine(Strings, del);
+    if (!mes) {
 	log_err("Failed to process strings");
 	goto out3;
     }
 
     // send concatinated string to X
-    set_rootname(xdefault, str, strlen(str));
+    set_rootname(xdefault, mes, strlen(mes));
 
-    /* Clean up */
-    free(str);
+    free(mes);
 
  out3:
-    rc = sll_destroy(&Strings);
-    if (rc != argc - 2)
+    if (sll_destroy(&Strings) != argc - 2)
 	log_warn("Possible memory leak");
     close_display(xdefault);
 
