@@ -168,6 +168,12 @@ int main(int argc, char *argv[])
     
     del = argv[1];
 
+    Display *xdefault = open_display();
+    if (!xdefault) {
+	    EC = EXIT_FAILURE;
+	    goto out2;
+    }
+    
     for (int i = 0; i < argc - 2; ++i) {
 	cb = read_cb(libdrn_cb, argv[i + 2]);
 
@@ -179,12 +185,6 @@ int main(int argc, char *argv[])
 	}
     }
 
-    Display *xdefault = open_display();
-    if (!xdefault) {
-	    EC = EXIT_FAILURE;
-	    goto out2;
-    }
-    
     /* combine each string with the delimiter */
     mes = strings_combine(Strings, del);
     if (!mes) {
