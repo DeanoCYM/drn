@@ -139,21 +139,6 @@ read_cb_success(struct SLL **Strings, char *str)
     return sll_push(Strings, str);
 }
 
-void
-signal_handler()
-{
-
-    return;
-}
-
-int
-signal_interupt()
-{
-    static int i = 0;
-    ++i;
-    return (i < 5) ? 1 : 0;
-}
-
 /* Generate a linked list of strings from callbacks, returns number of
    strings successfully read */
 int
@@ -197,31 +182,30 @@ int main(int argc, char *argv[])
     
     Display *xdefault = open_display();
     if (!xdefault) {
-	    EC = EXIT_FAILURE;
-	    goto out2;
+	log_err("Failed to open display");
+	EC = EXIT_FAILURE;
+	goto out2;
     }
     
-    while (signal_interupt()) {
-	if (strings_generate(libdrn_cb, argv + 2, argc - 2, &Strings) < argc - 2)
-	    EC = EXIT_FAILURE;
+    if (strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2) {
+	log_warn("Not all strings processed");
+	EC = EXIT_FAILURE;
+    }
 
-	mes = strings_combine(Strings, argv[1]);
-	if (!mes) {
-	    log_err("Failed to process strings");
-	    goto out3;
-	}
+    mes = strings_combine(Strings, argv[1]);
+    if (!mes) {
+	log_err("Failed to process strings");
+	goto out3;
+    }
 
-	set_rootname(xdefault, mes, strlen(mes));
+    set_rootname(xdefault, mes, strlen(mes));
 
-	sll_destroy(&Strings);
-	free(mes); mes = NULL;
-    } 
+    sll_destroy(&Strings);
+    free(mes); mes = NULL;
 
-    /* cleanup */
-    if(mes) free(mes);
+    /* Cleanup */
+
  out3:
-    if (sll_destroy(&Strings) != argc - 2)
-	log_warn("Possible memory leak");
     close_display(xdefault);
  out2:
     if (dlclose(libdrn_cb))
