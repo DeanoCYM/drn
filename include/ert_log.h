@@ -36,8 +36,9 @@
 #define ERRNO_MSG() {							\
     fprintf(stderr, BOLD);						\
     fprintf(stderr, " (%s)\n",						\
-	    errno == 0 ? "No errno" : strerror(errno));		\
-    fprintf(stderr, ANSI_RESET); }
+	    errno == 0 ? "No errno" : strerror(errno));			\
+    fprintf(stderr, ANSI_RESET);					\
+    errno = 0; }
 
 /* Always present - Error messages */
 #define log_err(MSG, ...) {						\

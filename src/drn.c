@@ -142,17 +142,46 @@ read_cb_success(struct SLL **Strings, char *str)
 void
 signal_handler()
 {
-    // add while (1) to main and signal handler man 3 signal --->
+
     return;
+}
+
+int
+signal_interupt()
+{
+    static int i = 0;
+    ++i;
+    return (i < 5) ? 1 : 0;
+}
+
+/* Generate a linked list of strings from callbacks, returns number of
+   strings successfully read */
+int
+strings_generate(void *lib, char **cbname, int cbcount, struct SLL **List)
+{
+    int n = 0;			/* strings sucessfully read */
+    getstr cb = NULL;		/* callback to get string */
+
+    for (int i = 0; i < cbcount; ++i) {
+	cb = read_cb(lib, cbname[n]);
+	
+	if (cb) {
+	    if (!read_cb_success(List, cb()))
+		++n;
+	} else {
+	    read_cb_failure(List);
+	}
+    }
+
+    return n;
 }
 
 int main(int argc, char *argv[])
 {
     int EC = EXIT_SUCCESS;	/* exit code */
     void *libdrn_cb;		/* shared object used to get callbacks */
-    getstr cb;			/* callback from shared object */
     struct SLL *Strings = NULL;	/* linked list of processed strings */
-    char *del, *mes;		/* delimiter and message for printing */
+    char *mes;		      /* delimiter and message for printing */
 
     if (argc < 3) {
 	log_err("USAGE: %s <delimiter> <callbacks...>", argv[0]);
@@ -166,37 +195,30 @@ int main(int argc, char *argv[])
 	goto out1;
     }
     
-    del = argv[1];
-
     Display *xdefault = open_display();
     if (!xdefault) {
 	    EC = EXIT_FAILURE;
 	    goto out2;
     }
     
-    for (int i = 0; i < argc - 2; ++i) {
-	cb = read_cb(libdrn_cb, argv[i + 2]);
+    while (signal_interupt()) {
+	if (strings_generate(libdrn_cb, argv + 2, argc - 2, &Strings) < argc - 2)
+	    EC = EXIT_FAILURE;
 
-	if (!cb) {
-	    EC = read_cb_failure(&Strings);
-	} else {
-	    if (read_cb_success(&Strings, cb()))
-		EC = EXIT_FAILURE;
+	mes = strings_combine(Strings, argv[1]);
+	if (!mes) {
+	    log_err("Failed to process strings");
+	    goto out3;
 	}
-    }
 
-    /* combine each string with the delimiter */
-    mes = strings_combine(Strings, del);
-    if (!mes) {
-	log_err("Failed to process strings");
-	goto out3;
-    }
+	set_rootname(xdefault, mes, strlen(mes));
 
-    // send concatinated string to X
-    set_rootname(xdefault, mes, strlen(mes));
+	sll_destroy(&Strings);
+	free(mes); mes = NULL;
+    } 
 
     /* cleanup */
-    free(mes);
+    if(mes) free(mes);
  out3:
     if (sll_destroy(&Strings) != argc - 2)
 	log_warn("Possible memory leak");
