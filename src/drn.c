@@ -14,6 +14,7 @@
 #include <dlfcn.h>
 #include <X11/Xlib.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "ert_log.h"
 #include "drn_sll.h"
@@ -22,6 +23,8 @@
 
 #define CB_SO "lib/libdrn_cb.so"
 typedef char *(*getstr)(void);
+
+volatile sig_atomic_t done = 0;
 
 /* Returns handle for current display, or NULL on error */
 Display *
@@ -161,6 +164,11 @@ strings_generate(void *lib, char **cbname, int cbcount, struct SLL **List)
     return n;
 }
 
+void term(int signum)
+{
+    done = 1;
+}
+
 int main(int argc, char *argv[])
 {
     int EC = EXIT_SUCCESS;	/* exit code */
@@ -187,21 +195,34 @@ int main(int argc, char *argv[])
 	goto out2;
     }
     
-    if (strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2) {
-	log_warn("Not all strings processed");
-	EC = EXIT_FAILURE;
-    }
+    struct sigaction action;
+    memset(&action, 0, sizeof action);
+    action.sa_handler = term;
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
 
-    mes = strings_combine(Strings, argv[1]);
-    if (!mes) {
-	log_err("Failed to process strings");
-	goto out3;
-    }
+    do {			/* event loop */
 
-    set_rootname(xdefault, mes, strlen(mes));
+	if (strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2) {
+	    log_warn("Not all strings processed");
+	    EC = EXIT_FAILURE;
+	}
 
-    sll_destroy(&Strings);
-    free(mes); mes = NULL;
+	mes = strings_combine(Strings, argv[1]);
+	if (!mes) {
+	    log_err("Failed to process strings");
+	    EC = EXIT_FAILURE;
+	    goto out3;
+	}
+
+	set_rootname(xdefault, mes, strlen(mes));
+
+	sll_destroy(&Strings);
+	free(mes); mes = NULL;
+
+	sleep(5);
+
+    } while (!done);		/* breaks on SIGINT OR SIGTERM */
 
     /* Cleanup */
 
