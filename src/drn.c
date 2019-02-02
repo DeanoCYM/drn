@@ -195,16 +195,15 @@ int main(int argc, char *argv[])
     // send concatinated string to X
     set_rootname(xdefault, mes, strlen(mes));
 
+    /* cleanup */
     free(mes);
-
  out3:
     if (sll_destroy(&Strings) != argc - 2)
 	log_warn("Possible memory leak");
     close_display(xdefault);
-
  out2:
-    dlclose(libdrn_cb);
-
+    if (dlclose(libdrn_cb))
+	log_warn("Failed to close %s", CB_SO);
  out1:
     return EC;
 }
