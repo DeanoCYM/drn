@@ -190,7 +190,6 @@ int main(int argc, char *argv[])
     
     Display *xdefault = open_display();
     if (!xdefault) {
-	log_err("Failed to open display");
 	EC = EXIT_FAILURE;
 	goto out2;
     }
