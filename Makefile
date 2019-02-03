@@ -32,7 +32,7 @@ tests/drn_sll_test: lib/drn_sll.o tests/drn_sll_test.c
 # Install
 
 install: LOGLEVEL=1
-install: all
+install: clean all
 	sed -i 's|lib/libdrn_cb.so|/usr/local/lib/libdrn_cb.so|' src/drn.c
 	rm bin/drn
 	make bin/drn
