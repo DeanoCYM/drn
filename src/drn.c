@@ -164,7 +164,7 @@ strings_generate(void *lib, char **cbname, int cbcount, struct SLL **List)
     return n;
 }
 
-void term(int signum)
+void term(__attribute__((unused)) int signum)
 {
     done = 1;
 }
