@@ -1,5 +1,5 @@
 CC=cc
-LOGLEVEL?=2
+LOGLEVEL?=1
 CFLAGS=-Wall -Wextra -g3 -DLOGLEVEL=$(LOGLEVEL) -Iinclude/ -fPIC
 LIBS=-lX11 -ldl
 TESTS=tests/drn_sll_test
@@ -31,11 +31,11 @@ tests/drn_sll_test: lib/drn_sll.o tests/drn_sll_test.c
 
 # Install
 
-install: LOGLEVEL=1
+install: LOGLEVEL=0
 install: clean all
 	sed -i 's|lib/libdrn_cb.so|/usr/local/lib/libdrn_cb.so|' src/drn.c
 	rm bin/drn
-	make bin/drn
+	LOGLEVEL=0 make bin/drn
 	install -d $(PREFIX)/bin
 	install -m 755 bin/drn $(PREFIX)/bin
 	install -d $(PREFIX)/lib
