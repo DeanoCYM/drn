@@ -152,7 +152,7 @@ strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List)
     getstr cb = NULL;		/* callback to get string */
 
     for (size_t i = 0; i < cbcount; ++i) {
-	cb = read_cb(lib, cbname[n]);
+	cb = read_cb(lib, cbname[i]);
 	
 	if (cb) {
 	    if (!read_cb_success(List, cb()))
