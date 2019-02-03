@@ -9,7 +9,7 @@
 #define BAT_CAPACITY "/sys/class/power_supply/BAT0/capacity"
 #define BAT_STATUS "/sys/class/power_supply/BAT0/status"
 
-char *
+static char *
 create_buf(size_t size)
 {
     char *buf = calloc(1, size);
@@ -23,7 +23,7 @@ create_buf(size_t size)
     
 /* Reads a line from stream into str_out, recording the number of
    characters into len_out */
-int
+static int
 read_line(FILE *stream, char **str_out, size_t *len_out)
 {
     if (!fgets(*str_out, *len_out, stream)) {
@@ -43,7 +43,7 @@ read_line(FILE *stream, char **str_out, size_t *len_out)
     return 0;
 }
 
-int
+static int
 read_sysfs(const char *pathname, char **sys_out, size_t *len_out)
 {
     if (!pathname || !sys_out || !(*sys_out)) {
