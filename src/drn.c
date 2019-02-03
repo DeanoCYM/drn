@@ -79,13 +79,15 @@ read_cb(void *libdrn_cb, const char *libfn)
     return cb;
 }
     
-/* Combine all strings seperated by the delimiter */
+/* Combine all strings seperated by the delimiter. Returns combined
+   string or NULL on error. */
 char *
 strings_combine(struct SLL *Strings, char *delimiter)
 {
-    size_t cur_len = 0;
     char *str = calloc(1, MAX_LEN);
     char *buf = calloc(1, MAX_LEN);
+
+    size_t cur_len = 0;
 
     if (!str || !buf) goto memerr;
     
@@ -104,8 +106,8 @@ strings_combine(struct SLL *Strings, char *delimiter)
 	    break;
 	}
 
-	/* NOTE: future format string alterations: ensure that cur_len
-	   is incrememted if any characters are added */
+	/* NOTE: ensure that cur_len is incrememted if any characters
+	   are added to format string in the future */
 	sprintf(str, "%s%s%s", buf, delimiter, Strings->str);
 	strcpy(buf, str);
 	Strings = Strings->Next;
@@ -122,7 +124,6 @@ strings_combine(struct SLL *Strings, char *delimiter)
     log_err("Memory Error");
     return NULL;
 }
-
 
 /* When reading the callback fails, an empty string is pushed to the
    list. This allows the remaining callbacks to be processed aswell as
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
 
     /* Shared object used to get callbacks */
     void *libdrn_cb;		
-    if (!(libdrn_cb = dlopen(CB_SO, RTLD_LAZY))) {
+    if (! (libdrn_cb = dlopen(CB_SO, RTLD_LAZY)) ) {
 	log_err("Shared object %s could not be opened", CB_SO);
 	EC = EXIT_FAILURE;
 	goto out1;
@@ -211,7 +212,7 @@ int main(int argc, char *argv[])
 
     do {			/* event loop */
 
-	if ( strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2)
+	if ( strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2 )
 	    EC = EXIT_FAILURE;
 
 	rootname = strings_combine(Strings, argv[1]);
