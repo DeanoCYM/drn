@@ -132,6 +132,7 @@ int
 read_cb_failure(struct SLL **Strings)
 {
     sll_push(Strings, strdup(""));
+    log_warn("Pushing empty string");
     return EXIT_FAILURE;
 }
 
@@ -145,12 +146,12 @@ read_cb_success(struct SLL **Strings, char *str)
 /* Generate a linked list of strings from callbacks, returns number of
    strings successfully read */
 int
-strings_generate(void *lib, char **cbname, int cbcount, struct SLL **List)
+strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List)
 {
-    int n = 0;			/* strings sucessfully read */
+    size_t n = 0;		/* strings sucessfully read */
     getstr cb = NULL;		/* callback to get string */
 
-    for (int i = 0; i < cbcount; ++i) {
+    for (size_t i = 0; i < cbcount; ++i) {
 	cb = read_cb(lib, cbname[n]);
 	
 	if (cb) {
@@ -161,20 +162,22 @@ strings_generate(void *lib, char **cbname, int cbcount, struct SLL **List)
 	}
     }
 
+    if (cbcount != n)
+	log_warn("Failed to process %zu strings", cbcount - n);
+
     return n;
 }
 
-void term(__attribute__((unused)) int signum)
+void
+term(__attribute__((unused)) int signum)
 {
     done = 1;
+    return;
 }
 
 int main(int argc, char *argv[])
 {
     int EC = EXIT_SUCCESS;	/* exit code */
-    void *libdrn_cb;		/* shared object used to get callbacks */
-    struct SLL *Strings = NULL;	/* linked list of processed strings */
-    char *mes;		      /* delimiter and message for printing */
 
     if (argc < 3) {
 	log_err("USAGE: %s <delimiter> <callbacks...>", argv[0]);
@@ -182,6 +185,8 @@ int main(int argc, char *argv[])
 	goto out1;
     }
 
+    /* Shared object used to get callbacks */
+    void *libdrn_cb;		
     if (!(libdrn_cb = dlopen(CB_SO, RTLD_LAZY))) {
 	log_err("Shared object %s could not be opened", CB_SO);
 	EC = EXIT_FAILURE;
@@ -194,30 +199,33 @@ int main(int argc, char *argv[])
 	goto out2;
     }
     
+    /* Blocking of singals allows clean exit from event loop */
     struct sigaction action;
     memset(&action, 0, sizeof action);
     action.sa_handler = term;
     sigaction(SIGINT, &action, NULL);
     sigaction(SIGTERM, &action, NULL);
 
+    struct SLL *Strings = NULL;	/* linked list of processed strings */
+    char *rootname = NULL;	/* string to be printed */
+
     do {			/* event loop */
 
-	if (strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2) {
-	    log_warn("Not all strings processed");
+	if ( strings_generate(libdrn_cb, argv+2, argc-2, &Strings) < argc-2)
 	    EC = EXIT_FAILURE;
-	}
 
-	mes = strings_combine(Strings, argv[1]);
-	if (!mes) {
+	rootname = strings_combine(Strings, argv[1]);
+	if (!rootname) {
 	    log_err("Failed to process strings");
 	    EC = EXIT_FAILURE;
 	    goto out3;
 	}
 
-	set_rootname(xdefault, mes, strlen(mes));
+	set_rootname(xdefault, rootname, strlen(rootname));
 
-	sll_destroy(&Strings);
-	free(mes); mes = NULL;
+	if ( sll_destroy(&Strings) < argc-2)
+	    log_warn("Possible memory leak");
+	free(rootname); rootname = NULL;
 
 	sleep(5);
 
