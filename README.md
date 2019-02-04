@@ -17,7 +17,7 @@ and systemd unit files. However, it is useable as a status bar for dwm.
 # Usage
 
 ```
-$ drn <delimiter> <callback1> [callback2] ... [callbackN]
+$ drn <delimiter> <callback> [callback] ... [callback]
 ```
 
 e.g.
@@ -47,7 +47,7 @@ To use the provided unit files, modify to your requirements and copy into into y
 $ cp etc/{xsession.target,drn.service} $HOME/.config/systemd/user/
 ```
 
-To provide the required hooks at start up, run the following commands. Append to your `.~/.xinitrc` or `~/.xsession` to make persistant.
+To provide the required hooks at start up, run the following commands. Append to your `~/.xinitrc` or `~/.xsession` to make persistant.
 `
 
 ```
@@ -60,6 +60,7 @@ Finally, enable and start drn.
 ```
 $ systemctl --user enable drn.service
 $ systemctl --user start drn.service
+$ systemctl --user daemon-reload
 ```
 
 Customisation
@@ -83,7 +84,7 @@ or
 
 ```
 $ kill $(YOURPID);
-$ drn <delimiter> <callback1> [callback2] ... [callbackN]
+$ drn <delimiter> <callback> [callback] ... [callback]
 ```
 
 # Uninstall
