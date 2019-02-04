@@ -10,26 +10,26 @@ and systemd unit files. However, it is useable as a status bar for dwm.
 
 # Installation
 
-``` Shell
-PREFIX=/usr/local make install
+```
+# PREFIX=/usr/local make install
 ```
 
 # Usage
 
-``` Shell
+```
 $ drn <delimiter> <callback1> [callback2] ... [callbackN]
 ```
 
 e.g.
 
 
-``` Shell
+```
 $ drn " | " batt_capacity batt_status local_time &
 ```
 
 Would set the root window to:
 
-``` Shell
+```
  | Charging | 100% | Mon 09/12/18
 ```
 
@@ -43,21 +43,21 @@ systemd. An example unit file is in `etc/drn.service`. The drn service file requ
 
 To use the provided unit files, modify to your requirements and copy into into your systemd user directory.
 
-``` Shell
+```
 $ cp etc/{xsession.target,drn.service} $HOME/.config/systemd/user/
 ```
 
 To provide the required hooks at start up, run the following commands. Append to your `.~/.xinitrc` or `~/.xsession` to make persistant.
 `
 
-``` Shell
+```
 systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS DISPLAY
 systemctl --no-block --user start xsession.target
 ```
 
 Finally, enable and start drn.
 
-``` Shell
+```
 $ systemctl --user enable drn.service
 $ systemctl --user start drn.service
 ```
@@ -74,21 +74,21 @@ typedef char *(*getstr)(void);
 
 Once modified, the updated library must be updated and installed and drn restarted:
 
-``` Shell
+```
 # make libinstall
 $ systemctl --user restart drn.service
 ```
 
 or
 
-``` Shell
+```
 $ kill $(YOURPID);
 $ drn <delimiter> <callback1> [callback2] ... [callbackN]
 ```
 
 # Uninstall
 
-``` Shell
+```
 # PREFIX=/usr/local make uninstall
 ```
 
