@@ -48,19 +48,6 @@ uninstall:
 	rm -f $(PREFIX)/lib/{drn_sll.o,libdrn_cb.so}
 	rm -f $(PREFIX)/etc/drn/drn.service
 
-# Systemd unit file install
-
-systemd: etc/drn.service
-	install -d $(HOME)/.config/systemd/user
-	install -m 644 etc/drn.service $(HOME)/.config/systemd/user
-	systemctl --user enable drn.service
-	systemctl --user start drn.service
-
-unsystemd:
-	systemctl --user stop drn.service
-	systemctl --user disable drn.service
-	rm -f $(HOME)/.config/systemd/user/drn.service
-
 # Utilities
 
 clean:
