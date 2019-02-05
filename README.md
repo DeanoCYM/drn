@@ -48,7 +48,6 @@ $ cp etc/{xsession.target,drn.service} $HOME/.config/systemd/user/
 ```
 
 To provide the required hooks at start up, run the following commands. Append to your `~/.xinitrc` or `~/.xsession` to make persistant.
-`
 
 ```
 systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS DISPLAY
