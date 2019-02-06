@@ -11,8 +11,8 @@ all: bin/drn
 # Target build
 
 bin/drn: lib/libdrn_cb.so 
-bin/drn: src/drn.c lib/drn_sll.o
-	$(CC) $(CFLAGS) src/drn.c lib/drn_sll.o -o $@ $(LIBS)
+bin/drn: src/drn_main.c src/drn.o lib/drn_sll.o
+	$(CC) $(CFLAGS) src/drn_main.c src/drn.o lib/drn_sll.o -o $@ $(LIBS)
 
 lib/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
