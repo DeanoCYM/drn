@@ -6,7 +6,7 @@ TESTS=tests/drn_sll_test
 PREFIX?=/usr/local
 
 all: bin/drn
-.PHONY: all clean tags test install
+.PHONY: all clean tags test libinstall install
 
 # Target build
 
@@ -30,23 +30,22 @@ tests/drn_sll_test: lib/drn_sll.o tests/drn_sll_test.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Install
+libinstall: LOGLEVEL=0
+libinstall: lib/libdrn_cb.so
+	sed -i 's|lib/libdrn_cb.so|/usr/local/lib/libdrn_cb.so|' src/drn.c	
+	install -m 644 lib/libdrn_cb.so $(PREFIX)/lib
+	sed -i 's|/usr/local/lib/libdrn_cb.so|lib/libdrn_cb.so|' src/drn.c
 
-install: LOGLEVEL=0
-install: clean all
-	sed -i 's|lib/libdrn_cb.so|/usr/local/lib/libdrn_cb.so|' src/drn.c
-	rm bin/drn
+install: clean all libinstall
 	LOGLEVEL=0 make bin/drn
 	install -d $(PREFIX)/bin
 	install -m 755 bin/drn $(PREFIX)/bin
 	install -d $(PREFIX)/lib
 	install -m 644 lib/drn_sll.o $(PREFIX)/lib
-	install -m 644 lib/libdrn_cb.so $(PREFIX)/lib
-	sed -i 's|/usr/local/lib/libdrn_cb.so|lib/libdrn_cb.so|' src/drn.c
 
 uninstall:
 	rm -f $(PREFIX)/bin/drn
 	rm -f $(PREFIX)/lib/{drn_sll.o,libdrn_cb.so}
-	rm -f $(PREFIX)/etc/drn/drn.service
 
 # Utilities
 
@@ -56,4 +55,3 @@ clean:
 
 tags:
 	ctags -e src/*.c include/*.h
-
