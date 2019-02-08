@@ -1,19 +1,44 @@
 /* DRN (dwm root name)
  *
- * Updates the name of the root window in X.  Useful for dwm which
- * displays the name of the root window as a status bar.
  */
 
 /* (c) Ellis Rhys Thomas <e.rhys.thomas@gmail.com>
  * See LICENCE file for details
  */
 
-#include <stdio.h>
-#include <assert.h>
-#include <unistd.h>
 #include "drn.h"
+#include "drn_sll.h"
 #include "ert_log.h"
 
+#include <stdio.h>
+#include <unistd.h>
+#include <assert.h>
+
+volatile sig_atomic_t done = 0;
+typedef char *(*getstr)(void);
+
+/* Returns the shared object at libpathname */
+void *
+open_library(char *libpathname)
+{
+    void *so = dlopen(libpathname, RTLD_LAZY);
+    if (!libdrn_cb) {
+	log_err("Shared object %s could not be opened", CB_SO);
+	return NULL;
+    }
+
+    return so;
+}
+
+/* Close the share object */
+void
+close_library(void *so)
+{
+    if (dlclose(so))
+	log_warn("Failed to close %s", CB_SO);
+
+    return;
+}
 
 /* Returns handle for current display, or NULL on error */
 Display *
@@ -36,8 +61,53 @@ close_display(Display *xdisplay)
     return;
 }
 
-/* Sets the name of the root window to str */
+/* Signal handler blocks SIGINT and SIGTERM */
 void
+start_signal_handler(void)
+{
+    struct sigaction action;
+    memset(&action, 0, sizeof action);
+    action.sa_handler = term;
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
+    return;
+}
+
+int
+drn_loop(int argc, char **argv, void *so)
+{
+    int rc = EXIT_SUCCESS;
+    struct SLL *Strings = NULL;	/* linked list of processed strings */
+    char *rootname = NULL;	/* string to be printed */
+
+    do {			/* event loop */
+
+	if ( strings_generate(so, argv+2, argc-2, &Strings) < argc-2 )
+	    rc = EXIT_FAILURE;
+
+	rootname = strings_combine(Strings, argv[1]);
+	if (!rootname) {
+	    log_err("Failed to process strings");
+	    rc = EXIT_FAILURE;
+	    break;
+	}
+
+	set_rootname(xdefault, rootname, strlen(rootname));
+
+	if ( sll_destroy(&Strings) < argc-2)
+	    log_warn("Possible memory leak");
+
+	free(rootname); rootname = NULL;
+
+	sleep(5);
+
+    } while (!done);		/* breaks on SIGINT OR SIGTERM */
+
+    return rc;
+}
+
+/* Sets the name of the root window to str */
+static void
 set_rootname(Display *xdisplay, const char *str, size_t len)
 {
     assert(str[len] == '\0');
@@ -70,7 +140,7 @@ read_cb(void *libdrn_cb, const char *libfn)
     
 /* Combine all strings seperated by the delimiter. Returns combined
    string or NULL on error. */
-char *
+static char *
 strings_combine(struct SLL *Strings, char *delimiter)
 {
     char *str = calloc(1, MAX_LEN);
@@ -118,7 +188,7 @@ strings_combine(struct SLL *Strings, char *delimiter)
    list. This allows the remaining callbacks to be processed aswell as
    preventing failures during cleanup using (ssl_destroy()). Returns
    1. */
-int
+static int
 read_cb_failure(struct SLL **Strings)
 {
     sll_push(Strings, strdup(""));
@@ -127,7 +197,7 @@ read_cb_failure(struct SLL **Strings)
 }
 
 /* Push string into linked list returns 0 on success or 1 on failure */
-int
+static int
 read_cb_success(struct SLL **Strings, char *str)
 {
     return sll_push(Strings, str);
@@ -158,7 +228,7 @@ strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List)
     return n;
 }
 
-void
+static void
 term(__attribute__((unused)) int signum)
 {
     done = 1;
