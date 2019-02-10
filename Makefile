@@ -29,8 +29,11 @@ test: LOGLEVEL=3
 test: clean $(TESTS) $(TARGET)
 	tests/runtests.sh
 
-tests/%_test: tests/%_test.c $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@
+tests/%_test.o: tests/%_test.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+tests/%_test: tests/%_test.o lib/%.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 # Install
 libinstall: LOGLEVEL=0

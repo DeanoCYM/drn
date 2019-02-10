@@ -47,16 +47,16 @@ strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List);
  * Returns a count of the number of failures.  
  * */
 int
-drn_loop(int argc, char **argv, void *so, Display *Xdisp, size_t maxlen)
+drn_loop(int count, char **sym, void *so, Display *Xdisp, size_t max_len)
 {
     int rc = EXIT_SUCCESS;
-    struct SLL *Strings = NULL;	/* linked list of processed strings */
-    char *rootname = NULL;	/* string to be printed */
+    char *rootname = NULL;
+    struct List *strings = List_create(max_len);
+
 
     do {			/* event loop */
 
-	if ( strings_generate(so, argv+2, argc-2, &Strings) < argc-2 )
-	    rc = EXIT_FAILURE;
+	strings_generate(so, sym, count, strings);
 
 	rootname = strings_combine(Strings, argv[1], maxlen);
 	if (!rootname) {
@@ -83,20 +83,18 @@ drn_loop(int argc, char **argv, void *so, Display *Xdisp, size_t maxlen)
 /* Generate a linked list of strings from callbacks, returns number of
    strings successfully read */
 int
-strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List)
+strings_generate(void *lib, char **cbname, size_t cbcount, struct List strings)
 {
     size_t n = 0;		/* strings sucessfully read */
     getstr cb = NULL;		/* callback to get string */
 
     for (size_t i = 0; i < cbcount; ++i) {
 	cb = read_cb(lib, cbname[i]);
-	
-	if (cb) {
-	    if (!read_cb_success(List, cb()))
-		++n;
-	} else {
-	    read_cb_failure(List);
-	}
+
+	if (cb)
+	    read_cb_success(strings, cb(), &n);
+	else
+	    read_cb_failure(strings);
     }
 
     if (cbcount != n)
@@ -167,9 +165,14 @@ read_cb_failure(struct SLL **Strings)
 
 /* Push string into linked list returns 0 on success or 1 on failure */
 static int
-read_cb_success(struct SLL **Strings, char *str)
+read_cb_success(struct SLL **Strings, char *str, size_t *n)
 {
     log_debug("Pushed %s", str);
-    return sll_push(Strings, str);
+    int rc = list_push(Strings, str);
+    if (rc)
+	return EXIT_FAILURE;
+
+    ++(*n);
+    return EXIT_SUCCESS;
 }
 

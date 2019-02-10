@@ -12,81 +12,73 @@
 
 #define NULLFREE "Attempt made to free NULL pointer"
 
-static void
-free_str(char *str)
+struct Node { char *str; size_t len; struct SLL *next; };
+
+List *
+list_create(size_t max_len)
 {
-    if (str) {
-	free(str);
-	str = NULL;
-    } else {
-	log_warn(NULLFREE);
+    List *list;
+    list = calloc(1, sizeof *list);
+    if (!list) {
+	log_err("Memory error");
+	return NULL;
     }
 
-    return;
-}
-static void
-free_sll(struct SLL *Head)
-{
-    if (Head) {
-	Head->len = 0;
-	free_str(Head->str);
-	Head->Next = NULL;
-	free(Head);
-    } else {
-	log_warn(NULLFREE);
-    }
+    list->max_len = max_len;
+    list->cur_len = 0;
+    list->nodec = 0;
+    list->Head = NULL;
 
-    return;
+    return list;
 }
-
-/* Frees the memory of, and sets to 0, all elements of all nodes in
-   the linked list. Returns the number of nodes destroyed. */
+    
 int
-sll_destroy(struct SLL **Next)
+list_destroy(struct List *list);
 {
-    int n;
-    struct SLL *Head;
-
-    if (!Next) {
-	log_warn(NULLFREE);
-	return 0;
+    if (!list) {
+	log_err("Invalid list");
+	return -1;
     }
 
-    for (n = 0; (Head = *Next) && Head->str; ++n) {
-	*Next = (*Next)->Next;
-	free_sll(Head);
-    }
+    int n = 0;
 
-    *Next = NULL;
+    do {
+	struct List next = list->node->next;
+	if (list->node) {
+	    free(list->node);
+	    list->node = NULL;
+	    ++n;
+	}
+    } while ( (list->head) = next);
+
+    if (list->nodec != n)
+	log_warn("Invalid list, possible memory leak");
+
+    list->max_len = 0;
+    list->cur_len = 0;
+    list->nodec = 0;
+    free(list);
+    list = NULL;
 
     return n;
-}
+}	
 
 int
-sll_push(struct SLL **Next, char *str)
+list_push(struct List *list, const char *str);
 {
-    struct SLL *Head;
-
-    if (!Next) {
-	log_err("Cannot dereference list, has it been initialised?");
-	return 1;
-    }
-
-    if (!str) {
-	log_err("Invalid string");
-	return 1;
-    }
-
-    Head = malloc(sizeof (struct SLL));
-    if (!Head) {
-	log_err("Memory error");
-	return 1;
-    }
-
-    Head->len = strlen(str);
-    Head->str = str;
-    Head->Next = *Next;
-    *Next = Head;
+    struct Node *new;
+    new = calloc(1, sizeof *new);
     
-    return 0;
+    new->len = strlen(str);
+    new->string = strndup(str, new->len);
+    new->next = list->head;
+
+    list->head = new;
+    list->cur_len += new->len;
+    ++(list->nodec);
 }
+
+
+
+    
+    

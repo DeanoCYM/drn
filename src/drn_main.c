@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     
     start_signal_handler();
 
-    int EC = drn_loop(argc, argv, so, Xdisp, MAX_LEN);
+    int EC = drn_loop(argc-2, argv+2, so, Xdisp, MAX_LEN);
 
     close_display(Xdisp);
     close_library(so);
