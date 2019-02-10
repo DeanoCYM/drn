@@ -1,7 +1,7 @@
 CC=cc
 CFLAGS=-Wall -Wextra -g3 -DLOGLEVEL=$(LOGLEVEL) -Iinclude/ -fPIC
 LIBS=-lX11 -ldl
-OBJ=lib/drn_sll.o lib/drn.o
+OBJ=lib/drn.o lib/drn_sll.o lib/drn_x11.o lib/drn_signal.o lib/drn_dlsym.o
 SO=
 DLSO=lib/libdrn_cb.so
 TARGET=bin/drn
@@ -54,6 +54,7 @@ uninstall:
 clean:
 	rm -f lib/* bin/*
 	rm -f vgcore* tests/drn_ssl_test tests/log
+	rm -f src/*~ include/*~ Makefile~
 
 tags:
-	ctags -e src/*.c include/*.h
+	etags src/*.c include/*.h

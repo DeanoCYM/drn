@@ -8,14 +8,19 @@
  * See LICENCE file for details
  */
 
-#include "config.h"
 #include "drn.h"
+#include "drn_x11.h"
+#include "drn_dlsym.h"
 #include "ert_log.h"
+#include "stdlib.h"
+
+#define CB_SO "lib/libdrn_cb.so"
+#define MAX_LEN 100
 
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
-	log_err("USAGE: %s <delimiter> <callbacks...>", argv[0]);
+	log_err("USAGE: %s <delimiter> <callbacks...>\n", argv[0]);
 	return EXIT_FAILURE;
     }
 
@@ -23,17 +28,17 @@ int main(int argc, char *argv[])
     if (!so)
 	return EXIT_FAILURE;
     
-    Display *xdefault = open_display();
-    if (!xdefault) {
-	close_library(xdefault);
+    Display *Xdisp = open_display();
+    if (!Xdisp) {
+	close_library(Xdisp);
 	return EXIT_FAILURE;
     }
     
     start_signal_handler();
 
-    int EC = drn_loop(argc, argv, so);
+    int EC = drn_loop(argc, argv, so, Xdisp, MAX_LEN);
 
-    close_display(xdefault);
+    close_display(Xdisp);
     close_library(so);
 
     return EC;

@@ -2,6 +2,9 @@
 
 #ifndef DRN_SLL
 #define DRN_SLL
+
+#include <stddef.h>
+
 struct SLL { char *str; size_t len; struct SLL *Next; };
 
 /* Push a new node to the linked list
@@ -9,8 +12,7 @@ struct SLL { char *str; size_t len; struct SLL *Next; };
  * List: address of ptr to head node of a linking list
  * str:  pointer to string literal
  * 
- * Returns: 0 on success, 1 on failure
- */
+ * Returns: 0 on success, 1 on failure */
 int sll_push(struct SLL **List, char *str);
 
 /* Free and destroy all nodes, and their elements, in the linked
@@ -18,10 +20,7 @@ int sll_push(struct SLL **List, char *str);
  *
  * List: address of ptr to head node of a linked list
  *
- * Returns: number of nodes destroyed
- */
+ * Returns: number of nodes destroyed */
 int sll_destroy(struct SLL **List);
 
 #endif
-	
-    

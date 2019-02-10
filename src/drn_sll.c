@@ -1,3 +1,9 @@
+/* DRN_SSL.C
+ * 
+ * Implements a simple singly linked list to manage strings
+ *
+ * */
+
 #include <stdio.h>
 #include <stdlib.h>
 
