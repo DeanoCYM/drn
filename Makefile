@@ -1,11 +1,11 @@
 CC=cc
-CFLAGS=-Wall -Wextra -g3 -DLOGLEVEL=$(LOGLEVEL) -Iinclude/ -fPIC
+CFLAGS=-Wall -Wextra -Wfatal-errors -g3 -DLOGLEVEL=$(LOGLEVEL) -Iinclude/ -fPIC
 LIBS=-lX11 -ldl
 OBJ=lib/drn.o lib/drn_sll.o lib/drn_x11.o lib/drn_signal.o lib/drn_dlsym.o
 SO=
 DLSO=lib/libdrn_cb.so
 TARGET=bin/drn
-TSRC=src/drn_main.c
+TSRC=src/main.c
 TESTS=tests/drn_sll_test
 PREFIX?=/usr/local
 LOGLEVEL?=1
@@ -34,7 +34,6 @@ tests/%_test.o: tests/%_test.c
 
 tests/%_test: tests/%_test.o lib/%.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
-
 # Install
 libinstall: LOGLEVEL=0
 libinstall: $(DLSO)
@@ -55,9 +54,8 @@ uninstall:
 
 # Utilities
 clean:
-	rm -f lib/* bin/*
+	rm -f $(OBJ) bin/*
 	rm -f vgcore* tests/drn_ssl_test tests/log
-	rm -f src/*~ include/*~ Makefile~
 
 tags:
 	etags src/*.c include/*.h
