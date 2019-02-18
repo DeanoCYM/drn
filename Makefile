@@ -1,12 +1,12 @@
 CC=cc
 CFLAGS=-Wall -Wextra -Wfatal-errors -g3 -DLOGLEVEL=$(LOGLEVEL) -Iinclude/ -fPIC
 LIBS=-lX11 -ldl
-OBJ=lib/drn.o lib/drn_sll.o lib/drn_x11.o lib/drn_signal.o lib/drn_dlsym.o
+OBJ=lib/drn.o lib/drn_strings.o lib/drn_x11.o lib/drn_signal.o lib/drn_dlsym.o
 SO=
 DLSO=lib/libdrn_cb.so
 TARGET=bin/drn
 TSRC=src/main.c
-TESTS=tests/drn_sll_test
+TESTS=tests/drn_strings_test
 PREFIX?=/usr/local
 LOGLEVEL?=1
 

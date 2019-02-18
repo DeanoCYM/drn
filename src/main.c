@@ -17,6 +17,17 @@
 #define CB_SO "lib/libdrn_cb.so"
 #define MAX_LEN 100
 
+
+/* Prepeare the environment and run the event loop.
+ *
+ * The event loop continuously reads the shared object file 'CB_SO'
+ * using symbol names from argv. The retrieved strings are combined
+ * with a delimiter and applied to the root window name.
+ *
+ * The event loop is exited and all resources cleaned up upon
+ * receiving SIGTERM or SIGINT.
+ * 
+ */
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
@@ -36,8 +47,9 @@ int main(int argc, char *argv[])
     
     start_signal_handler();
 
-    int 
-EC = drn_loop(argc-2, argv+2, so, Xdisp, MAX_LEN);
+    int EC = drn_loop(Xdisp,
+		      so, argv+2, argc-2,
+		      argv[1], MAX_LEN);
 
     close_display(Xdisp);
     close_library(so);

@@ -7,7 +7,7 @@
  */
 
 #include "drn.h"
-#include "drn_sll.h"		/* singly linked list */
+#include "drn_strings.h"
 #include "drn_x11.h"		/* x11 display */
 #include "drn_dlsym.h"		/* shared object */
 #include "drn_signal.h"		/* signal blocking */
@@ -20,21 +20,19 @@
 #include <signal.h>
 #include <X11/Xlib.h>
 
-/* Forward declarations for static functions */
+/* Forward Declarations For Static Functions */
 
 static int
-read_cb_failure(struct SLL **Strings);
+callback_read_failure(struct List Strings);
 
 static int
-read_cb_success(struct SLL **Strings, char *str);
+callback_read_success(struct List Strings, char *str);
 
-static char *
-strings_combine(struct SLL *Strings, char *delimiter, size_t maxlen);
-
-static int
-strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List);
-
-/* Extern functions */
+/*
+ *
+ * ******************** Interface Functions ********************
+ *
+*/
 
 /* Event loop for drn.
  * 
@@ -44,57 +42,66 @@ strings_generate(void *lib, char **cbname, size_t cbcount, struct SLL **List);
  * X11 root window name is then updated after the strings are concatenated along
  *  with the delimiter.
  *
- * Returns a count of the number of failures.  
+ * Returns zero on success or a count of the number of failures.  
  * */
 int
-drn_loop(int count, char **sym, void *so, Display *Xdisp, size_t max_len)
+drn_loop(size_t count, char **symbols, void *so,
+	 Display *Xdisp,
+	 size_t max_len, char *delimiter)
 {
-    int rc = EXIT_SUCCESS;
+    int rc = 0;
+    int passc = 0;
     char *rootname = NULL;
-    struct List *strings = List_create(max_len);
+    struct List Strings = NULL;
 
+    Strings = List_create(max_len, count, delimiter);
+    if (!Strings)
+	goto fail;
 
-    do {			/* event loop */
+    do {
 
-	strings_generate(so, sym, count, strings);
+	passc = List_populate(Strings, so, symbols);
+	rootname = List_combine(Strings);
+	if (!rootname)
+	    goto fail;
 
-	rootname = strings_combine(Strings, argv[1], maxlen);
-	if (!rootname) {
-	    log_err("Failed to process strings");
-	    rc = EXIT_FAILURE;
-	    break;
-	}
+	set_rootname(Xdisp, rootname, Strings->combined_len);
 
-	set_rootname(Xdisp, rootname, strlen(rootname));
-
-	rc = sll_destroy(&Strings);
-	if (rc < argc-2)
+	if (List_depopulate(Strings) != passc)
 	    log_warn("Possible memory leak");
-
 	free(rootname); rootname = NULL;
 
 	sleep(5);
 
     } while (!done);		/* breaks on SIGINT OR SIGTERM */
 
-    return rc;
+    List_destroy(Strings);
+
+    return passc;
+
+ fail:
+    List_destroy(Strings);
+    log_err("Event loop fatal error");
+    return -1;
 }
 
-/* Generate a linked list of strings from callbacks, returns number of
-   strings successfully read */
-int
-strings_generate(void *lib, char **cbname, size_t cbcount, struct List strings)
+/* Populate an array 'strings' with strigngs obtained from callbacks
+ * to a shared object file 'so'.
+ *
+ * Returns number of strings successfully read */
+static size_t
+strings_populate(void *lib, char **cbname, size_t cbcount, char **strings)
 {
     size_t n = 0;		/* strings sucessfully read */
-    getstr cb = NULL;		/* callback to get string */
+    getstr callback = NULL;
 
     for (size_t i = 0; i < cbcount; ++i) {
-	cb = read_cb(lib, cbname[i]);
+	callback = callback_read(lib, cbname[i]);
 
-	if (cb)
-	    read_cb_success(strings, cb(), &n);
+	if (callback)
+	    callback_read_success(strings, callback(), &n);
 	else
-	    read_cb_failure(strings);
+	    callback_read_failure(strings);
     }
 
     if (cbcount != n)
@@ -103,12 +110,16 @@ strings_generate(void *lib, char **cbname, size_t cbcount, struct List strings)
     return n;
 }
 
-/* Static functions */
+/*
+ *
+ * ******************** Static Functions ********************
+ *
+*/
 
 /* Combine all strings seperated by the delimiter. Returns combined
    string or NULL on error. */
 static char *
-strings_combine(struct SLL *Strings, char *delimiter, size_t maxlen)
+strings_combine(struct List *Strings, char *delimiter, size_t maxlen)
 {
     char *str = calloc(1, maxlen);
     char *buf = calloc(1, maxlen);
@@ -151,13 +162,13 @@ strings_combine(struct SLL *Strings, char *delimiter, size_t maxlen)
     return NULL;
 }
 
-/* When reading the callback fails, an empty string is pushed to the
-   list. This allows the remaining callbacks to be processed aswell as
-   preventing failures during cleanup using (ssl_destroy()). Returns
-   1. */
+/* When reading the callback fails, an empty string is added to the
+   array. This allows the remaining callbacks to be processed. */
 static int
-read_cb_failure(struct SLL **Strings)
+read_cb_failure(struct List **strings)
 {
+    
+    
     sll_push(Strings, strdup(""));
     log_warn("Failed to process string, pushing empty string");
     return EXIT_FAILURE;
@@ -165,7 +176,7 @@ read_cb_failure(struct SLL **Strings)
 
 /* Push string into linked list returns 0 on success or 1 on failure */
 static int
-read_cb_success(struct SLL **Strings, char *str, size_t *n)
+read_cb_success(struct list Strings, char *str, size_t *n)
 {
     log_debug("Pushed %s", str);
     int rc = list_push(Strings, str);

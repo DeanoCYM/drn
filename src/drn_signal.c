@@ -1,6 +1,9 @@
 /* DRN_SIGNAL_C
  *
  * DRN functions for signal handling
+ *
+ * Suppression of interuppt and termination signal permits cleanup of
+ * resources proir to exit.
  * 
  */
 
@@ -9,6 +12,7 @@
 
 volatile sig_atomic_t done = 0;
 
+/* Handler sets done to one, should be called when signal is recieved */
 static void
 term(__attribute__((unused)) int signum)
 {
@@ -16,6 +20,7 @@ term(__attribute__((unused)) int signum)
     return;
 }
 
+/* Blocks SIGINT and SIGTERM */
 void
 start_signal_handler(void)
 {
@@ -28,6 +33,7 @@ start_signal_handler(void)
    return;
 }
 
+/* Not yet implemented */
 void
 stop_signal_handler(void)
 {

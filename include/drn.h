@@ -9,9 +9,9 @@
 #include <X11/Xlib.h>
 #include <stddef.h>
 
-/* Blocking signals to allow cleanup before termination */
-void start_signal_handler(void);
-
-int drn_loop(int argc, char **argv, void *so, Display *Xdisp, size_t maxlen);
+int
+drn_loop(Display Xdisp,
+	 void *so, char **symbols, size_t count,
+	 char *delimiter, size_t max_len);
 
 #endif	/* DRN */
