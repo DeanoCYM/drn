@@ -10,8 +10,8 @@
 #include <stddef.h>
 
 int
-drn_loop(Display Xdisp,
-	 void *so, char **symbols, size_t count,
-	 char *delimiter, size_t max_len);
+drn_loop(size_t count, char **symbols, void *so,
+	 Display *Xdisp,
+	 size_t max_len, char *delimiter);
 
 #endif	/* DRN */

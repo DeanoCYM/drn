@@ -6,7 +6,7 @@ SO=
 DLSO=lib/libdrn_cb.so
 TARGET=bin/drn
 TSRC=src/main.c
-TESTS=tests/drn_strings_test
+TESTS=
 PREFIX?=/usr/local
 LOGLEVEL?=1
 
@@ -29,11 +29,6 @@ test: LOGLEVEL=3
 test: clean $(TESTS) $(TARGET)
 	tests/runtests.sh
 
-tests/%_test.o: tests/%_test.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-tests/%_test: tests/%_test.o lib/%.o
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 # Install
 libinstall: LOGLEVEL=0
 libinstall: $(DLSO)
@@ -54,7 +49,7 @@ uninstall:
 
 # Utilities
 clean:
-	rm -f $(OBJ) bin/*
+	rm -f $(TARGET) $(OBJ) $(DLSO) $(SO)
 	rm -f vgcore* tests/drn_ssl_test tests/log
 
 tags:

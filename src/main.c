@@ -11,8 +11,10 @@
 #include "drn.h"
 #include "drn_x11.h"
 #include "drn_dlsym.h"
+#include "drn_signal.h"
 #include "ert_log.h"
 #include "stdlib.h"
+
 
 #define CB_SO "lib/libdrn_cb.so"
 #define MAX_LEN 100
@@ -47,9 +49,7 @@ int main(int argc, char *argv[])
     
     start_signal_handler();
 
-    int EC = drn_loop(Xdisp,
-		      so, argv+2, argc-2,
-		      argv[1], MAX_LEN);
+    int EC = drn_loop(argc-2, argv+2, so, Xdisp, MAX_LEN, argv[1]);
 
     close_display(Xdisp);
     close_library(so);
