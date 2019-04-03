@@ -29,7 +29,7 @@ int List_populate(struct List *Strings, void *so, char **symbols);
  * Returns the combined string or NULL on error */
 char * List_combine(struct List *Strings);
 
-/* Free all memory strings */
+/* Free all memory strings, retains count */
 void List_depopulate(struct List *Strings);
 
 /* Deallocate List memory */

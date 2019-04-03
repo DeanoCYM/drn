@@ -100,8 +100,6 @@ List_depopulate(struct List *Strings)
 	    Strings->strings[i] = NULL;
 	}
 
-    Strings->count = 0;
-
     return;
 }
 
@@ -122,6 +120,13 @@ List_destroy(struct List *Strings)
 	Strings->delimiter = NULL;
     }
 
+    Strings->count = 0;
+
+    if (Strings->strings) {
+	free(Strings->strings);
+	Strings->strings = NULL;
+    }
+    
     free(Strings);
     Strings = NULL;
 
