@@ -25,7 +25,7 @@
 /* Event loop for drn.
  * 
  * Repeatedly reads callbacks read from shared object 'so' that match all the
- * symbols in argv (symbols start at argv+2).
+ * symbols in argv (symbols start at argv+2 in main).
  *
  * X11 root window name is then updated after the strings are concatenated along
  *  with the delimiter.
