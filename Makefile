@@ -40,12 +40,11 @@ libinstall: $(DLSO)
 install: LOGLEVEL=0
 install: clean all libinstall
 	install -d $(PREFIX)/bin
-	install -m 755 bin/drn $(PREFIX)/bin
-	install -m 644 lib/drn_sll.o $(PREFIX)/lib
+	install -m 755 $(TARGET) $(PREFIX)/bin
 
 uninstall:
-	rm -f $(PREFIX)/bin/drn
-	rm -f $(PREFIX)/lib/{drn_sll.o,libdrn_cb.so}
+	rm -f $(PREFIX)/$(TARGET)
+	rm -f $(addprefix $(PREFIX)/, $(DLSO))
 
 # Utilities
 clean:
@@ -54,3 +53,6 @@ clean:
 
 tags:
 	etags src/*.c include/*.h
+
+hello:
+	echo $(LIBS)/$(DLSO)
