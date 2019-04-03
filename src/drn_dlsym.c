@@ -14,7 +14,7 @@ open_library(char *libpathname)
 {
     void *so = dlopen(libpathname, RTLD_LAZY);
     if (!so) {
-	log_err("Shared object could not be opened");
+	log_err("Shared object could not be opened at %s", libpathname);
 	return NULL;
     }
 
