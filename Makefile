@@ -27,7 +27,7 @@ lib/lib%.so: lib/%.o
 # Testing
 test: LOGLEVEL=3
 test: clean $(TESTS) $(TARGET)
-	tests/runtests.sh
+	-tests/runtests.sh
 
 # Install
 libinstall: LOGLEVEL=0

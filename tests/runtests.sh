@@ -3,6 +3,8 @@ DATE="$(date)"
 LOG=tests/log
 RC=0
 
+exec 2> /dev/null
+
 # MEM_CHECK ()
 # Use valgrind memcheck tool to check for memory leaks
 #
@@ -25,12 +27,15 @@ function mem_check () {
 # RC_CHECK ()
 # Check the exit code for expected value
 #
-# $1 - exit code (int)
+# $1 - actual exit code (int)
 # $2 - expected exit code (int)
-#
+# $3 - test description (string)
+# 
 # Returns - 0 on pass, 1 on fail
 # 
 function rc_check () { 
+
+    printf "(%s) Exit code: expected %s, actual %s.\n" "$3" "$2" "$1" >> $LOG
 
     if [ $1 -eq 33 ]; then
 	printf "[FAIL]: Memory error\n"
@@ -49,32 +54,28 @@ function rc_check () {
 
 printf "Test log [%s]\n" "$DATE" > $LOG
 
-mem_check "tests/drn_sll_test" "string1" "string2" # linked list object
-rc_check $? 0
-(( RC+= $? ))
-
 mem_check "bin/drn" 		# no args
-rc_check $? 1
+rc_check $? 1 "No arguements"
 (( RC+= $? ))
 
 mem_check "bin/drn" "|"		# one arg
-rc_check $? 1
+rc_check $? 1 "One arguement"
 (( RC+= $? ))
 
 mem_check "bin/drn" "|" ""     # empty string arg
-rc_check $? 1
+rc_check $? 1 "Second arguement with empty string"
 (( RC+= $? ))
 
 mem_check "bin/drn" "|" "notafn" # invalid symbol
-rc_check $? 1
+rc_check $? 1 "Second arguement (of two) not a vaild symbol"
 (( RC+= $? ))
 
 mem_check "bin/drn" "|" "notafn" "batt_capacity" # invalid symbol
-rc_check $? 1
+rc_check $? 1 "Second arguement (of three) not a valid symbol"
 (( RC+= $? ))
 
 mem_check "bin/drn" " · " "local_time" "batt_capacity" "batt_status" # 5 args
-rc_check $? 0
+rc_check $? 0 "Five valid arguements"
 (( RC+= $? ))
 
 printf "Testing complete... $RC test(s) failed\n"
