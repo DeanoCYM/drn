@@ -53,6 +53,12 @@ List_populate(struct List *Strings, void *so, char **symbols)
     for (i = 0; i < Strings->count; ++i) {
 
 	so_callback = read_cb(so, symbols[i]);
+	if (!so_callback) {
+	    Strings->strings[i] = strdup("");
+	    log_warn("Skipping callback, empty string appended");
+	    break;
+	}
+
 	string = so_callback();
 
 	if (string) {
