@@ -32,15 +32,15 @@ test: clean $(TESTS) $(TARGET)
 # Install
 libinstall: LOGLEVEL=0
 libinstall: $(DLSO)
+	sed -i 's|^\(#define CB_SO \).\+|\1"/usr/local/lib/libdrn_cb.so"|' src/main.c
 	-install -d $(PREFIX)/lib
 	-install -m 644 $^ $(PREFIX)/lib
 
 install: LOGLEVEL=0
-install: clean all libinstall
-	sed -i 's|\(#define CB_SO\).*|\1 "/usr/local/lib/libdrn_cb.so"|' src/main.c
+install: clean libinstall all
+	sed -i 's|^\(#define CB_SO \).\+|\1"lib/libdrn_cb.so"|' src/main.c
 	install -d $(PREFIX)/bin
 	install -m 755 $(TARGET) $(PREFIX)/bin
-
 
 uninstall:
 	rm -f $(PREFIX)/$(TARGET)

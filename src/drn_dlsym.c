@@ -7,12 +7,20 @@
 #include "drn_dlsym.h"
 #include "ert_log.h"
 #include <dlfcn.h>
+#include <unistd.h>
 
 /* Returns the shared object at the file path 'libpathname' */
 void *
 open_library(char *libpathname)
 {
+    if (access(libpathname, R_OK)) {
+	log_err("Cannot read shared object at %s", libpathname);
+    } else {
+	log_info("Read access OK for shared object at %s", libpathname);
+    }
+
     void *so = dlopen(libpathname, RTLD_LAZY);
+
     if (!so) {
 	log_err("Shared object could not be opened at %s", libpathname);
 	return NULL;

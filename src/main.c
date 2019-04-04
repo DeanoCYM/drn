@@ -15,10 +15,8 @@
 #include "ert_log.h"
 #include "stdlib.h"
 
-
 #define CB_SO "lib/libdrn_cb.so"
 #define MAX_LEN 100
-
 
 /* Prepeare the environment and run the event loop.
  *
