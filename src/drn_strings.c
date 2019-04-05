@@ -48,26 +48,23 @@ List_populate(struct List *Strings, void *so, char **symbols)
 {
     size_t i = 0;
     getstr so_callback;
-    char *string;
+    char *string = NULL;
 
     for (i = 0; i < Strings->count; ++i) {
 
+	/* Read callback */
 	so_callback = read_cb(so, symbols[i]);
-	if (!so_callback) {
-	    Strings->strings[i] = strdup("");
-	    log_warn("Skipping callback, empty string appended");
-	    break;
+	if (so_callback) {
+	    string = so_callback();
 	}
 
-	string = so_callback();
-
-	if (string) {
+	if (string) {		/* check if valid string */
 	    Strings->strings[i] = strndup(string, Strings->max_len);
 	    free(string);
 	    string = NULL;
 	} else {
 	    Strings->strings[i] = strdup("");
-	    log_warn("Empty string read from shared object");
+	    log_warn("Empty string appended");
 	}
     }
 
