@@ -47,10 +47,11 @@ int
 List_populate(struct List *Strings, void *so, char **symbols)
 {
     size_t i = 0;
+    int passc = 0;
     getstr so_callback;
     char *string = NULL;
 
-    for (i = 0; i < Strings->count; ++i) {
+    for (i = 0; i < Strings->count; i++) {
 
 	/* Read callback */
 	so_callback = read_cb(so, symbols[i]);
@@ -62,13 +63,14 @@ List_populate(struct List *Strings, void *so, char **symbols)
 	    Strings->strings[i] = strndup(string, Strings->max_len);
 	    free(string);
 	    string = NULL;
+	    ++passc;
 	} else {
 	    Strings->strings[i] = strdup("");
 	    log_warn("Empty string appended");
 	}
     }
 
-    return i;
+    return passc;
 }
 
 char *

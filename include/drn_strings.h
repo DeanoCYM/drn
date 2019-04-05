@@ -20,7 +20,7 @@ struct List *List_create(size_t max_len, size_t count, const char *delimiter);
 /* Populates the 'List' structure with strings read from the shared
  * object 'so' using the strings 'symbols'.
  *
- * Returns number of nodes read */
+ * Returns number of strings successfully read */
 int List_populate(struct List *Strings, void *so, char **symbols);
 
 /* Combines each string in List struct into a single string separated

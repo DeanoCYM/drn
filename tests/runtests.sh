@@ -54,27 +54,31 @@ function rc_check () {
 
 printf "Test log [%s]\n" "$DATE" > $LOG
 
-mem_check "bin/drn" 		# no args
+mem_check "bin/drn"
 rc_check $? 1 "No arguements"
 (( RC+= $? ))
 
-mem_check "bin/drn" "|"		# one arg
+mem_check "bin/drn" "|"
 rc_check $? 1 "One arguement"
 (( RC+= $? ))
 
-mem_check "bin/drn" "|" ""     # empty string arg
+mem_check "bin/drn" "|" ""
 rc_check $? 1 "Second arguement with empty string"
 (( RC+= $? ))
 
-mem_check "bin/drn" "|" "notafn" # invalid symbol
+mem_check "bin/drn" "|" "notafn"
 rc_check $? 1 "Second arguement (of two) not a vaild symbol"
 (( RC+= $? ))
 
-mem_check "bin/drn" "|" "notafn" "batt_capacity" # invalid symbol
+mem_check "bin/drn" "|" "notafn" "batt_capacity"
 rc_check $? 1 "Second arguement (of three) not a valid symbol"
 (( RC+= $? ))
 
-mem_check "bin/drn" " · " "local_time" "batt_capacity" "batt_status" # 5 args
+mem_check "bin/drn" "|" "batt_status" "notafn" "alsonotfn" "batt_capacity"
+rc_check $? 2 "Third and fourth arguement (of five) not valid symbols"
+(( RC+= $? ))
+
+mem_check "bin/drn" " · " "local_time" "batt_capacity" "batt_status"
 rc_check $? 0 "Five valid arguements"
 (( RC+= $? ))
 

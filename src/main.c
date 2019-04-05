@@ -52,5 +52,5 @@ int main(int argc, char *argv[])
     close_display(Xdisp);
     close_library(so);
 
-    return EC;
+    return EC;			/* number of failed callbacks */
 }

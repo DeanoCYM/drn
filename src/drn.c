@@ -63,7 +63,7 @@ drn_loop(size_t count, char **symbols, void *so,
 
     List_destroy(Strings);
 
-    return passc;
+    return count - passc; /* Returns no. failed callbacks  */
 
  fail:
     List_destroy(Strings);
