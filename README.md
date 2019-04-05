@@ -30,7 +30,7 @@ $ drn " | " batt_capacity batt_status local_time &
 Would set the root window to:
 
 ```
- | Charging | 100% | Mon 09/12/18
+ Charging | 100% | Mon 09/12/18 08:38PM
 ```
 
 By defualt, the root window is updated every 5s.
