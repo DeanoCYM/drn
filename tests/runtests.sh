@@ -3,7 +3,7 @@ DATE="$(date)"
 LOG=tests/log
 RC=0
 
-exec 2> /dev/null
+exec 2> /dev/null		# stop output to stderr (segfault spam)
 
 # MEM_CHECK ()
 # Use valgrind memcheck tool to check for memory leaks
