@@ -11,7 +11,7 @@ exec 2> /dev/null		# stop output to stderr (segfault spam)
 # $1   - binary
 # $@:2 - command line arguments to binary
 #
-# Returns - 33 on memory error or the binary exit code
+# Returns - 33 on memory error or the exit code
 # 
 function mem_check () {
     catargs="${@:2}"
@@ -35,7 +35,7 @@ function mem_check () {
 # 
 function rc_check () { 
 
-    printf "(%s) Exit code: expected %s, actual %s.\n" "$3" "$2" "$1" >> $LOG
+    printf "[%s] Exit code: expected %s, actual %s.\n" "$3" "$2" "$1" >> $LOG
 
     if [ $1 -eq 33 ]; then
 	printf "[FAIL]: Memory error\n"
