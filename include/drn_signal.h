@@ -1,6 +1,6 @@
 /* DRN_SIGNAL_H
  *
- * DRN functions for signal handling
+ * Signal handling
  * 
  */
 
